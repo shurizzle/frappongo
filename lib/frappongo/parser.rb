@@ -22,6 +22,7 @@ module Frappongo
       literal | symbol | vector | map | set | list
     }
 
+    # [^^([#{\"~%:,s;@`')]}/-+;0-9])
     rule(:simple_symbol) {
       match('[-*+!_?[:alpha:]]') >> match('[-*+!_?[:alnum:]]').repeat >>
       (

@@ -1,5 +1,4 @@
 require 'parslet'
-require 'parslet/convenience'
 require 'frappongo/types'
 
 module Frappongo
