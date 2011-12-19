@@ -7,7 +7,7 @@ module Frappongo
     root :root
 
     rule(:root) {
-      space? >> list.repeat
+      space? >> atom.repeat
     }
 
     rule(:list) {
@@ -153,17 +153,21 @@ module Frappongo
     }
 
     rule(:vector) {
-      (str('[') >> space? >> body >> space? >> str(']')).as(:vector) >> space?
+      (str('[') >> body >> str(']')).as(:vector) >> space?
     }
 
     rule(:map) {
       (str('{') >> space? >>
-        (atom.as(:key) >> atom.as(:value)).as(:tuple).repeat.as(:elements) >>
+        (atom.as(:key) >> space?  >> atom.as(:value)).as(:tuple).repeat.as(:elements) >>
         space? >> str('}')).as(:map) >> space?
     }
 
     rule(:set) {
-      space? >> (str('#{') >> space? >> body >> space? >> str('}')).as(:set) >> space?
+      space? >> (str('#{') >> body >> str('}')).as(:set) >> space?
+    }
+
+    rule(:lambda) {
+      space? >> (str('#(') >> body >> str(")")).as(:lambda) >> space?
     }
 
     rule(:newline) {
