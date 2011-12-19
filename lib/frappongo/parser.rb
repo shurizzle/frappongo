@@ -51,7 +51,7 @@ module Frappongo
     }
 
     rule(:literal) {
-      string | regexp | number | character | nihil | boolean | keyword
+      number | string | regexp | character | nihil | boolean | keyword
     }
 
     rule(:string) {
@@ -83,20 +83,26 @@ module Frappongo
 
     rule(:integer) {
       (
-        (str('+') | str('-')).maybe.as(:sign) >>
+        match('[+-]').maybe.as(:sign) >>
 
 
-        # <base>r<value> syntax
         (
+          # <base>r<value> syntax
           (
             match('[2-9]') |
             match('[1-2]') >> match('[0-9]') |
             str('3') >> match('[0-6]')
-          ).as(:base) >> str('r') >> match('[0-9]').repeat(1).as(:value)
-        ) |
+          ).as(:base) >> match('[rR]') >> match('[0-9a-vA-V]').repeat(1).as(:value) |
 
-        # legacy
-        match('[0-9]').repeat(1).as(:value)
+          # octal
+          (str('0') >> match('[0-7]').repeat(1)).as(:value) |
+
+          # hex
+          (str('0') >> match('[xX]') >> match('[0-9a-fA-F]').repeat(1)).as(:value) |
+
+          # legacy
+          (match('[1-9]') >> match('[0-9]').repeat).as(:value) | str('0').as(:value)
+        )
       ).as(:integer) >> space?
     }
 

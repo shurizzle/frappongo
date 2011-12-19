@@ -3,11 +3,20 @@ require 'frappongo/types'
 
 module Frappongo
   class Transform < Parslet::Transform
+    def sanitize_int(x)
+      case x
+      when /^0x([0-9a-f]+)$/i then $1.to_i(16)
+      when /^0([0-7]+)$/ then $1.to_i(8)
+      when /^[0-9]+$/ then x.to_i
+      else raise "Can't interpret #{x} as a integer."
+      end
+    end
+
     rule(integer: {sign: simple(:s), value: simple(:i)}) {
-      Frappongo::Integer.new("#{s}#{i}".to_i)
+      Frappongo::Integer.new("#{s}#{Frappongo::Integer.sanitize i.to_s}".to_i)
     }
     rule(integer: {value: simple(:i)}) {
-      Frappongo::Integer.new(i.to_s.to_i)
+      Frappongo::Integer.new(Frappongo::Integer.sanitize i.to_s)
     }
     rule(integer: {sign: simple(:s), base: simple(:b), value: simple(:v)}) {
       Frappongo::Integer.new("#{s}#{v}".to_i(b.to_s.to_i))
