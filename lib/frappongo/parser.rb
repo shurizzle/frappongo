@@ -158,7 +158,7 @@ module Frappongo
 
     rule(:map) {
       (str('{') >> space? >>
-        (atom.as(:key) >> space?  >> atom.as(:value)).as(:tuple).repeat.as(:elements) >>
+        (atom.as(:key) >> atom.as(:value)).as(:tuple).repeat.as(:elements) >>
         space? >> str('}')).as(:map) >> space?
     }
 
