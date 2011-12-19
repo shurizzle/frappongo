@@ -13,7 +13,7 @@ module Frappongo
     end
 
     def to_s
-      @internal ? 'false' : 'true'
+      @internal ? 'true' : 'false'
     end
     alias inspect to_s
   end
