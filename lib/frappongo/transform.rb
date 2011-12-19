@@ -1,4 +1,5 @@
 require 'parslet'
+require 'boolean'
 require 'frappongo/types'
 
 class Object
@@ -35,8 +36,14 @@ module Frappongo
     rule(character: simple(:c)) { Frappongo::Character.new(c) }
 
     rule(nihil: simple(:n)) { nil }
-    rule(boolean: simple(:b)) { Frappongo::Boolean.new(b) }
-    rule(keyword: simple(:k)) { Frappongo::Keyword.new(k) }
+    rule(boolean: simple(:b)) {
+      case b.to_s
+      when 'false' then false
+      when 'true' then true
+      else raise 'Invalid value for boolean'
+      end
+    }
+    rule(keyword: simple(:k)) { k.to_sym }
     rule(tuple: {key: simple(:k), value: simple(:v)}) { [k, v] }
     rule(elements: subtree(:e)) { e }
     rule(set: subtree(:e)) { Frappongo::Set.new(e) }
@@ -59,15 +66,15 @@ module Frappongo
     rule(metadata: {meta: simple(:meta), arg: simple(:arg)}) {
       metadata = case meta
                  when Frappongo::String, Frappongo::Symbol
-                   {Frappongo::Keyword.new('tag') => meta}
-                 when Frappongo::Keyword
-                   {meta => Frappongo::Boolean.new('true')}
+                   {tag: meta}
+                 when ::Symbol
+                   {meta => true}
                  when Frappongo::Map
-                   meta.value
+                   meta
                  else nil
                  end
 
-      arg.metadata = arg.metadata.value.merge(metadata)
+      arg.metadata = arg.metadata.merge(metadata)
       arg
     }
   end

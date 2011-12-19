@@ -153,7 +153,7 @@ module Frappongo
     }
 
     rule(:vector) {
-      (str('[') >> space? >> body >> space? >> str(']')).as(:vector) >> space?
+      (str('[') >> body >> str(']')).as(:vector) >> space?
     }
 
     rule(:map) {

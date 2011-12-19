@@ -1,19 +1,15 @@
 module Frappongo
-  class List
+  class List < Array
     def initialize(list)
-      @internal = list.to_a
-    end
-
-    def value
-      @internal
+      super(list.to_a)
     end
 
     def to_s
-      "(#{@internal.map(&:to_s).join(' ')})"
+      "(#{map(&:to_s).join(' ')})"
     end
 
     def inspect
-      "(#{@internal.map(&:inspect).join(' ')})"
+      "(#{map(&:inspect).join(' ')})"
     end
   end
 end

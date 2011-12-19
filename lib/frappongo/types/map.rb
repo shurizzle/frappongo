@@ -1,25 +1,24 @@
 module Frappongo
-  class Map
+  class Map < Hash
     def initialize(hash=nil)
+      super()
       if hash
-        @internal = hash.is_a?(Hash) ? hash : Hash[hash]
-      else
-        @internal = {}
+        merge!(hash.is_a?(Hash) ? hash : Hash[hash])
       end
     end
 
-    def value
-      @internal
-    end
+    #def merge(*args)
+      #super(*args)
+    #end
 
     def to_s
-      "{#{@internal.map {|args|
+      "{#{map {|args|
         args.map(&:to_s).join(' ')
       }.join(' ')}}"
     end
 
     def inspect
-      "{#{@internal.map {|args|
+      "{#{map {|args|
         args.map(&:inspect).join(' ')
       }.join(' ')}}"
     end
