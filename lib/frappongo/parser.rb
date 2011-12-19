@@ -22,12 +22,20 @@ module Frappongo
       literal | symbol | vector | map | set | list
     }
 
-    # [^^([#{\"~%:,s;@`')]}/-+;0-9])
     rule(:simple_symbol) {
-      match('[-*+!_?[:alpha:]]') >> match('[-*+!_?[:alnum:]]').repeat >>
       (
-        str(':') >> match('[-*+!_?[:alpha:]]') >> match('[-*+!_?[:alnum:]]').repeat
-      ).repeat
+        (
+          match('[^^\(\[#{\\"~%:,/\s;@`\')\]}/\-+;0-9]') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]').repeat >>
+          (
+            str(':') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]')
+          ).repeat
+        ) | (
+          match('[+-]') >> (match('[^^(\[#{\\"~%:,/\s;@`\')\]}0-9]') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]').repeat).maybe >>
+          (
+            str(':') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]')
+          ).repeat
+        )
+      ) >> str('#').maybe
     }
 
     rule(:namespace) {
