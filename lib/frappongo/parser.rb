@@ -7,7 +7,7 @@ module Frappongo
     root :root
 
     rule(:root) {
-      (space? >> list >> space?).repeat
+      space? >> list.repeat
     }
 
     rule(:list) {
@@ -157,8 +157,16 @@ module Frappongo
       space? >> (str('#{') >> space? >> body >> space? >> str('}')).as(:set) >> space?
     }
 
+    rule(:newline) {
+      str("\n") >> str("\r").maybe
+    }
+
+    rule(:comment) {
+      (str(';') | str('#!')) >> (newline.absnt? >> any).repeat
+    }
+
     rule(:space) {
-      match('[\s,]').repeat(1)
+      match('[\s,]').repeat(1) | comment
     }
 
     rule(:space?) {
