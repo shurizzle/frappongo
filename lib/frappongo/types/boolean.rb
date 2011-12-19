@@ -13,11 +13,7 @@ module Frappongo
     end
 
     def to_s
-      case @internal
-      when false then 'false'
-      when true then 'true'
-      else 'WAT'
-      end
+      @internal ? 'false' : 'true'
     end
     alias inspect to_s
   end

@@ -1,17 +1,23 @@
 require 'parslet'
 require 'frappongo/types'
 
+class Object
+  def metadata
+    @metadata ||= Frappongo::Map.new
+  end
+
+  def metadata=(meta)
+    @metadata = case meta
+                when Frappongo::Map
+                  meta
+                when Hash
+                  Frappongo::Map.new(meta.to_a)
+                end
+  end
+end
+
 module Frappongo
   class Transform < Parslet::Transform
-    def sanitize_int(x)
-      case x
-      when /^0x([0-9a-f]+)$/i then $1.to_i(16)
-      when /^0([0-7]+)$/ then $1.to_i(8)
-      when /^[0-9]+$/ then x.to_i
-      else raise "Can't interpret #{x} as a integer."
-      end
-    end
-
     rule(integer: {sign: simple(:s), value: simple(:i)}) {
       Frappongo::Integer.new("#{s}#{Frappongo::Integer.sanitize i.to_s}".to_i)
     }
@@ -47,6 +53,22 @@ module Frappongo
     }
     rule(symbol: {name: simple(:n)}) {
       Frappongo::Symbol.new(n)
+    }
+    rule(ratio: {num: simple(:n), den: simple(:d)}) { ::Kernel.Rational(n.value, d.value) }
+
+    rule(metadata: {meta: simple(:meta), arg: simple(:arg)}) {
+      metadata = case meta
+                 when Frappongo::String, Frappongo::Symbol
+                   {Frappongo::Keyword.new('tag') => meta}
+                 when Frappongo::Keyword
+                   {meta => Frappongo::Boolean.new('true')}
+                 when Frappongo::Map
+                   meta.value
+                 else nil
+                 end
+
+      arg.metadata = arg.metadata.value.merge(metadata)
+      arg
     }
   end
 end

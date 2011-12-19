@@ -1,7 +1,11 @@
 module Frappongo
   class Map
-    def initialize(hash)
-      @internal = Hash[hash]
+    def initialize(hash=nil)
+      if hash
+        @internal = hash.is_a?(Hash) ? hash : Hash[hash]
+      else
+        @internal = {}
+      end
     end
 
     def value

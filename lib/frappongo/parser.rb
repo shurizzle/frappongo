@@ -18,8 +18,13 @@ module Frappongo
       space? >> (atom >> space?).repeat.as(:elements)
     }
 
+    rule(:meta) {
+      ((str('#').maybe >> str('^')) >> (symbol | string | map | keyword).as(:meta) >>
+        space? >> atom.as(:arg)).as(:metadata)
+    }
+
     rule(:atom) {
-      literal | symbol | vector | map | set | list
+      meta | literal | symbol | vector | map | set | list
     }
 
     rule(:simple_symbol) {
@@ -78,7 +83,7 @@ module Frappongo
     }
 
     rule(:number) {
-      float | integer
+      ratio | float | integer
     }
 
     rule(:integer) {
@@ -113,8 +118,12 @@ module Frappongo
       ).as(:integer) >>
       (
         str('.') >> match('[0-9]').repeat(1) |
-        str('e') >> match('[0-9]').repeat(1)
+        str('e') >> match('[+-]').maybe >> match('[0-9]').repeat(1)
       ).as(:e)).as(:float) >> space?
+    }
+
+    rule(:ratio) {
+      (integer.as(:num) >> match('/') >> integer.as(:den)).as(:ratio)
     }
 
     rule(:character) {
@@ -173,4 +182,5 @@ module Frappongo
       space.maybe
     }
   end
+
 end
