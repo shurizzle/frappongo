@@ -20,17 +20,17 @@ end
 module Frappongo
   class Transform < Parslet::Transform
     rule(integer: {sign: simple(:s), value: simple(:i)}) {
-      Frappongo::Integer.new("#{s}#{Frappongo::Integer.sanitize i.to_s}".to_i)
+      "#{s}#{Frappongo::Integer.sanitize i.to_s}".to_i
     }
     rule(integer: {value: simple(:i)}) {
-      Frappongo::Integer.new(Frappongo::Integer.sanitize i.to_s)
+      Frappongo::Integer.sanitize(i.to_s)
     }
     rule(integer: {sign: simple(:s), base: simple(:b), value: simple(:v)}) {
-      Frappongo::Integer.new("#{s}#{v}".to_i(b.to_s.to_i))
+      "#{s}#{v}".to_i(b.to_s.to_i)
     }
 
     rule(float: {integer: simple(:i), e: simple(:e)}) {
-      Frappongo::Float.new(i + e)
+      Float(i + e)
     }
 
     rule(character: simple(:c)) { Frappongo::Character.new(c) }
@@ -43,12 +43,14 @@ module Frappongo
       else raise 'Invalid value for boolean'
       end
     }
-    rule(keyword: simple(:k)) { k.to_sym }
+    rule(keyword: simple(:k)) { k.to_s.to_sym }
+
     rule(tuple: {key: simple(:k), value: simple(:v)}) { [k, v] }
     rule(elements: subtree(:e)) { e }
+
     rule(set: subtree(:e)) { Frappongo::Set.new(e) }
     rule(map: subtree(:e)) { Frappongo::Map.new(e) }
-    rule(string: simple(:s)) { Frappongo::String.new(s) }
+    rule(string: simple(:s)) { Frappongo::String.parse(s.to_s) }
     rule(list: subtree(:e)) { Frappongo::List.new(e) }
     rule(vector: subtree(:e)) { Frappongo::Vector.new(e) }
     rule(regexp: {pattern: simple(:pattern), flags: simple(:f)}) {
@@ -61,11 +63,11 @@ module Frappongo
     rule(symbol: {name: simple(:n)}) {
       Frappongo::Symbol.new(n)
     }
-    rule(ratio: {num: simple(:n), den: simple(:d)}) { ::Kernel.Rational(n.value, d.value) }
+    rule(ratio: {num: simple(:n), den: simple(:d)}) { ::Kernel.Rational(n, d) }
 
     rule(metadata: {meta: simple(:meta), arg: simple(:arg)}) {
       metadata = case meta
-                 when Frappongo::String, Frappongo::Symbol
+                 when ::String, Frappongo::Symbol
                    {tag: meta}
                  when ::Symbol
                    {meta => true}
@@ -74,8 +76,18 @@ module Frappongo
                  else nil
                  end
 
-      arg.metadata = arg.metadata.merge(metadata)
+      arg.metadata.merge!(metadata)
       arg
+    }
+
+    rule(record: {namespace: simple(:nsx), name: simple(:n), arg: subtree(:a)}) {
+      ns = nsx.to_s
+      ns.empty? ? ns = nil : ns[ns.size - 1] = ''
+      Frappongo::List.new([Frappongo::Symbol.new("->#{n}", ns), a])
+    }
+
+    rule(lambda: subtree(:e)) {
+      Frappongo::List.new([Frappongo::Symbol.new('fn', 'frappongo.core')] + [Frappongo::Vector.new(e)] + e)
     }
   end
 end

@@ -7,10 +7,6 @@ module Frappongo
       end
     end
 
-    #def merge(*args)
-      #super(*args)
-    #end
-
     def to_s
       "{#{map {|args|
         args.map(&:to_s).join(' ')

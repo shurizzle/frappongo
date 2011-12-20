@@ -30,8 +30,11 @@ module Frappongo
     end
 
     def to_s
+      @internal
+    end
+
+    def inspect
       '\\' + REVERSE_TABLE[@internal]
     end
-    alias inspect to_s
   end
 end

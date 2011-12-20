@@ -1,19 +1,15 @@
 module Frappongo
-  class Vector
+  class Vector < ::Array
     def initialize(vec)
-      @internal = vec.to_a
-    end
-
-    def value
-      @internal
+      super
     end
 
     def to_s
-      "[#{@internal.map(&:to_s).join(' ')}]"
+      "[#{map(&:to_s).join(' ')}]"
     end
 
     def inspect
-      "[#{@internal.map(&:inspect).join(' ')}]"
+      "[#{map(&:inspect).join(' ')}]"
     end
   end
 end

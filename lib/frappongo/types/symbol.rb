@@ -6,7 +6,7 @@ module Frappongo
     end
 
     def to_s
-      "#{@namespace || '*ns*'}/#{@name}"
+      "#{@namespace || 'this'}/#{@name}"
     end
     alias inspect to_s
   end

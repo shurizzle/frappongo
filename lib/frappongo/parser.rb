@@ -1,6 +1,21 @@
 require 'parslet'
 require 'parslet/convenience'
 
+class Parslet::Atoms::Named
+  def apply(source, context) # :nodoc:
+    value = parslet.apply(source, context)
+
+    if name.nil?
+      success(nil)
+    else
+      return value if value.error?
+      success(
+        produce_return_value(
+          value.result))
+    end
+  end
+end
+
 module Frappongo
 
   class Parser < Parslet::Parser
@@ -30,14 +45,14 @@ module Frappongo
     rule(:simple_symbol) {
       (
         (
-          match('[^^\(\[#{\\"~%:,/\s;@`\')\]}/\-+;0-9]') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]').repeat >>
+          match('[^^\(\[#{\\"~:,/\s;@`\')\]}/\.\-+;0-9]') >> match('[^^(\[#{\\"~:,/\.\s;@`\')\]}]').repeat >>
           (
-            str(':') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]')
+            str(':') >> match('[^^(\[#{\\"~:,/\.\s;@`\')\]}]')
           ).repeat
         ) | (
-          match('[+-]') >> (match('[^^(\[#{\\"~%:,/\s;@`\')\]}0-9]') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]').repeat).maybe >>
+          match('[+-]') >> (match('[^^(\[#{\\"~:,/\.\s;@`\')\]}0-9]') >> match('[^^(\[#{\\"~:,/\.\s;@`\')\]}]').repeat).maybe >>
           (
-            str(':') >> match('[^^(\[#{\\"~%:,/\s;@`\')\]}]')
+            str(':') >> match('[^^(\[#{\\"~:,/\.\s;@`\')\]}]')
           ).repeat
         )
       ) >> str('#').maybe
@@ -56,7 +71,11 @@ module Frappongo
     }
 
     rule(:literal) {
-      number | string | regexp | character | nihil | boolean | keyword
+      number | string | regexp | character | nihil | boolean | keyword | record | lambda
+    }
+
+    rule(:record) {
+      (str('#') >> (simple_symbol >> str('.')).repeat.as(:namespace) >> simple_symbol.as(:name) >> (vector | map).as(:arg)).as(:record) >> space?
     }
 
     rule(:string) {
@@ -163,11 +182,11 @@ module Frappongo
     }
 
     rule(:set) {
-      space? >> (str('#{') >> body >> str('}')).as(:set) >> space?
+      (str('#{') >> body >> str('}')).as(:set) >> space?
     }
 
     rule(:lambda) {
-      space? >> (str('#(') >> body >> str(")")).as(:lambda) >> space?
+      (str('#(') >> body >> str(")")).as(:lambda) >> space?
     }
 
     rule(:newline) {
@@ -175,7 +194,7 @@ module Frappongo
     }
 
     rule(:comment) {
-      (str(';') | str('#!')) >> (newline.absnt? >> any).repeat
+      ((str(';') | str('#!')) >> (newline.absnt? >> any).repeat | str('#_') >> atom).as(nil)
     }
 
     rule(:space) {
