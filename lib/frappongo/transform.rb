@@ -1,21 +1,7 @@
 require 'parslet'
 require 'boolean'
 require 'frappongo/types'
-
-class Object
-  def metadata
-    @metadata ||= Frappongo::Map.new
-  end
-
-  def metadata=(meta)
-    @metadata = case meta
-                when Frappongo::Map
-                  meta
-                when Hash
-                  Frappongo::Map.new(meta.to_a)
-                end
-  end
-end
+require 'frappongo/extensions'
 
 module Frappongo
   class Transform < Parslet::Transform

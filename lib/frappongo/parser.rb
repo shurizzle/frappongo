@@ -1,20 +1,6 @@
 require 'parslet'
 require 'parslet/convenience'
-
-class Parslet::Atoms::Named
-  def apply(source, context) # :nodoc:
-    value = parslet.apply(source, context)
-
-    if name.nil?
-      success(nil)
-    else
-      return value if value.error?
-      success(
-        produce_return_value(
-          value.result))
-    end
-  end
-end
+require 'frappongo/extensions'
 
 module Frappongo
 
