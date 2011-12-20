@@ -1,4 +1,3 @@
-require 'parslet'
 require 'boolean'
 require 'frappongo/types'
 require 'frappongo/extensions'

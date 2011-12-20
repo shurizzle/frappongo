@@ -1,5 +1,3 @@
-require 'parslet'
-require 'parslet/convenience'
 require 'frappongo/extensions'
 
 module Frappongo
@@ -180,11 +178,11 @@ module Frappongo
     }
 
     rule(:comment) {
-      ((str(';') | str('#!')) >> (newline.absnt? >> any).repeat | str('#_') >> atom).as(nil)
+      (str(';') | str('#!')) >> (newline.absnt? >> any).repeat | str('#_') >> atom
     }
 
     rule(:space) {
-      match('[\s,]').repeat(1) | comment
+      (match('[\s,]').repeat(1) | comment).ignore
     }
 
     rule(:space?) {
