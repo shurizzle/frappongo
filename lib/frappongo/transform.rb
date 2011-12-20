@@ -49,7 +49,7 @@ module Frappongo
     rule(symbol: {name: simple(:n)}) {
       Frappongo::Symbol.new(n)
     }
-    rule(ratio: {num: simple(:n), den: simple(:d)}) { ::Kernel.Rational(n, d) }
+    rule(ratio: {num: simple(:n), den: simple(:d)}) { Frappongo::Ratio.new(n, d) }
 
     rule(metadata: {meta: simple(:meta), arg: simple(:arg)}) {
       metadata = case meta
